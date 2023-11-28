@@ -1,0 +1,186 @@
+@extends('layouts.inside')
+@section('title', 'Dashboard')
+<link rel="stylesheet" type="text/css" href="{{ asset('assets/css/insidecand/home.css') }}">
+@section('content')
+    <div class="content">
+        <main>
+            <div class="bottom-data">
+                <div class="data">
+                    <div class="header">
+                        <h3>Upcoming Events</h3>
+                    </div>
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Event</th>
+                                <th>Location</th>
+                                <th>No of volunteer</th>
+                                <th>Start date</th>
+                                <th>End date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $rowNumber = 1;
+                            @endphp
+                            @if ($opportunities->isEmpty() || $opportunities->where('status', 'ongoing')->isEmpty())
+                                <tr>
+                                    <td colspan="8">No data found</td>
+                                </tr>
+                            @else
+                                @foreach ($opportunities as $opportunity)
+                                    @if ($opportunity->status === 'ongoing')
+                                        @php
+                                            $currentTime = now(); // Get the current time
+                                            $endTime = \Carbon\Carbon::parse($opportunity->end_time);
+                                            $rowClass = $currentTime->gt($endTime) ? 'bg-danger text-light' : ''; // Check if end_time has exceeded
+                                        @endphp
+                                        <tr>
+                                            <td style="padding-right: 10px">{{ $rowNumber++ }}</td>
+                                            <td style="padding-right: 10px">{{ $opportunity->title }}</td>
+                                            <td style="padding-right: 10px">{{ $opportunity->district }}</td>
+                                            <td style="padding-right: 10px">{{ $opportunity->vol_number }}</td>
+                                            <td style="padding-right: 10px">{{ $opportunity->start_time }}</td>
+                                            <td class="{{ $rowClass }}" style="padding-right: 10px">
+                                                {{ $opportunity->end_time }}</td>
+                                            <td>
+                                                <a href="#" data-toggle="modal"
+                                                    data-target="#editModal{{ $opportunity->id }}">Edit</a>
+                                                <!-- Bootstrap Modal for Editing Opportunity -->
+                                                <div class="modal fade" id="editModal{{ $opportunity->id }}" tabindex="-1"
+                                                    role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="editModalLabel">Edit
+                                                                    Opportunity</h5>
+                                                                <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                            <form method="POST"
+                                                                action="{{ route('opportunity.update', $opportunity->id) }}"
+                                                                enctype="multipart/form-data">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <div class="modal-body">
+                                                                    <!-- Opportunity fields to edit -->
+                                                                    <div class="form-group">
+                                                                        <label for="title">Title</label>
+                                                                        <input type="text" name="title" id="title"
+                                                                            class="form-control"
+                                                                            value="{{ $opportunity->title }}">
+                                                                        @error('title')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <textarea name="description" type="text" class="form-control" id="description">{{ $opportunity->description }}</textarea>
+                                                                        @error('description')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <input name="category" id="category" type="text"
+                                                                            class="form-control"
+                                                                            value="{{ $opportunity->category }}">
+                                                                        @error('category')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <input name="start_time" id="start_time"
+                                                                            type="datetime-local" class="form-control"
+                                                                            value="{{ $opportunity->start_time }}">
+                                                                        @error('start_time')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <textarea name="skills" type="text" class="form-control">{{ $opportunity->skills }}</textarea>
+                                                                        @error('skills')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <input name="age" type="text"
+                                                                            class="form-control"
+                                                                            value="{{ $opportunity->age }}">
+                                                                        @error('age')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        <textarea name="benefit" type="text" class="form-control">{{ $opportunity->benefit }}</textarea>
+                                                                        @error('benefit')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                    <div class="form-group">
+                                                                        @if ($opportunity->logoImage)
+                                                                            <img src="{{ asset('storage/' . $opportunity->logoImage) }}"
+                                                                                alt="Opportunity Image"
+                                                                                style="max-width: 200px;">
+                                                                        @else
+                                                                            <p>No image available</p>
+                                                                        @endif
+
+                                                                        <input type="file" id="logoImage"
+                                                                            name="logoImage" class="form-control-file">
+                                                                        @error('logoImage')
+                                                                            <span
+                                                                                class="text-danger">{{ $message }}</span>
+                                                                        @enderror
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        data-dismiss="modal">Close</button>
+                                                                    <button type="submit" class="btn btn-primary">Save
+                                                                        changes</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        @if (session('error') || session('success'))
+            Swal.fire({
+                icon: '{{ session('error') ? 'error' : 'success' }}',
+                title: '{{ session('error') ? session('error') : session('success') }}',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+        @endif
+    </script>
+    </body>
+@endsection

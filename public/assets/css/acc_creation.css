@@ -1,0 +1,29 @@
+body {
+    height: 100vh;
+    font-family: 'Roboto', sans-serif;
+}
+
+.container {
+    padding: 35px 58px 35px 58px;
+}
+
+.container h4 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+}
+
+.container .drop h5 {
+    font-weight: 800;
+}
+
+.container .drop .left {
+    color: white;
+}
+
+.container .drop button {
+    border: none;
+    padding: 5px;
+    width: 110px;
+    border-radius: 4px;
+    background-color: white;
+}
